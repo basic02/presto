@@ -92,7 +92,6 @@ class ByteArraySeekableStream
 
     @Override
     public boolean seekToNewSource(long targetPosition)
-            throws IOException
     {
         throw new UnsupportedOperationException();
     }

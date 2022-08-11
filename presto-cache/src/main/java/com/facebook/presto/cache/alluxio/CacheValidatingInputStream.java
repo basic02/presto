@@ -100,7 +100,6 @@ public class CacheValidatingInputStream
 
     @Override
     public boolean seekToNewSource(long target)
-            throws IOException
     {
         throw new UnsupportedOperationException();
     }
