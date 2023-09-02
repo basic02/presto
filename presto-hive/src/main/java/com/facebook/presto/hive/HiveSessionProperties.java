@@ -140,7 +140,7 @@ public final class HiveSessionProperties
     public static final String FILE_SPLITTABLE = "file_splittable";
     private static final String HUDI_METADATA_ENABLED = "hudi_metadata_enabled";
     private static final String READ_TABLE_CONSTRAINTS = "read_table_constraints";
-
+    public static final String PARALLEL_PARSING_OF_PARTITION_VALUES_ENABLED = "parallel_parsing_of_partition_values_enabled";
     private final List<PropertyMetadata<?>> sessionProperties;
 
     @Inject
@@ -671,6 +671,11 @@ public final class HiveSessionProperties
                         HUDI_METADATA_ENABLED,
                         "For Hudi tables prefer to fetch the list of file names, sizes and other metadata from the internal metadata table rather than storage",
                         hiveClientConfig.isHudiMetadataEnabled(),
+                        false),
+                booleanProperty(
+                        PARALLEL_PARSING_OF_PARTITION_VALUES_ENABLED,
+                        "Enables parallel parsing of partition values from partition names using thread pool",
+                        hiveClientConfig.isParallelParsingOfPartitionValuesEnabled(),
                         false));
     }
 
@@ -1175,5 +1180,10 @@ public final class HiveSessionProperties
     public static boolean isReadTableConstraints(ConnectorSession session)
     {
         return session.getProperty(READ_TABLE_CONSTRAINTS, Boolean.class);
+    }
+
+    public static boolean isParallelParsingOfPartitionValuesEnabled(ConnectorSession session)
+    {
+        return session.getProperty(PARALLEL_PARSING_OF_PARTITION_VALUES_ENABLED, Boolean.class);
     }
 }
