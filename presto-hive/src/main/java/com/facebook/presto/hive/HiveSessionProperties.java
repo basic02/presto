@@ -141,6 +141,7 @@ public final class HiveSessionProperties
     private static final String HUDI_METADATA_ENABLED = "hudi_metadata_enabled";
     private static final String READ_TABLE_CONSTRAINTS = "read_table_constraints";
     public static final String PARALLEL_PARSING_OF_PARTITION_VALUES_ENABLED = "parallel_parsing_of_partition_values_enabled";
+    public static final String DYNAMIC_SPLIT_SIZES_ENABLED = "dynamic_split_sizes_enabled";
     private final List<PropertyMetadata<?>> sessionProperties;
 
     @Inject
@@ -636,6 +637,11 @@ public final class HiveSessionProperties
                         SIZE_BASED_SPLIT_WEIGHTS_ENABLED,
                         "Enable estimating split weights based on size in bytes",
                         hiveClientConfig.isSizeBasedSplitWeightsEnabled(),
+                        false),
+                booleanProperty(
+                        DYNAMIC_SPLIT_SIZES_ENABLED,
+                        "Enable dynamic sizing of splits based on column statistics",
+                        hiveClientConfig.isDynamicSplitSizesEnabled(),
                         false),
                 new PropertyMetadata<>(
                         MINIMUM_ASSIGNED_SPLIT_WEIGHT,
@@ -1150,6 +1156,11 @@ public final class HiveSessionProperties
     public static boolean isSizeBasedSplitWeightsEnabled(ConnectorSession session)
     {
         return session.getProperty(SIZE_BASED_SPLIT_WEIGHTS_ENABLED, Boolean.class);
+    }
+
+    public static boolean isDynamicSplitSizesEnabled(ConnectorSession session)
+    {
+        return session.getProperty(DYNAMIC_SPLIT_SIZES_ENABLED, Boolean.class);
     }
 
     public static double getMinimumAssignedSplitWeight(ConnectorSession session)
