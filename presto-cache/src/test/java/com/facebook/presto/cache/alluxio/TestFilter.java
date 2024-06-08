@@ -16,6 +16,7 @@ package com.facebook.presto.cache.alluxio;
 
 import alluxio.client.file.URIStatus;
 import alluxio.conf.AlluxioConfiguration;
+import alluxio.conf.AlluxioProperties;
 import alluxio.conf.InstancedConfiguration;
 import alluxio.wire.FileInfo;
 import com.facebook.presto.cache.alluxio.filter.AlluxioCacheFilter;
@@ -38,7 +39,7 @@ public class TestFilter
         URIStatus uri1 = new URIStatus(new FileInfo().setPath("/otherdb"));
         URIStatus uri2 = new URIStatus(new FileInfo().setPath("/user/hive/warehouse/test.db/test/0000001"));
 
-        AlluxioConfiguration alluxioCacheConfig = InstancedConfiguration.defaults();
+        AlluxioConfiguration alluxioCacheConfig = new InstancedConfiguration(new AlluxioProperties(), true);
         AlluxioCacheFilter cacheFilter = new AlluxioCacheFilter(alluxioCacheConfig, "/home/jichen/work/apache/presto/presto-cache/src/test/resources/cache_filter_rule.json");
         assertFalse(cacheFilter.needsCache(uri1));
         assertTrue(cacheFilter.needsCache(uri2));
@@ -53,14 +54,14 @@ public class TestFilter
     @Test
     public void testPath()
     {
-        String [] uris=new String [] {
+        String[] uris = new String[]
+                {
                 "hdfs:///path/to/file",
                 "hdfs://nameservice/path/to/file",
                 "hdfs://host:2232/path/to/file",
-        };
+                };
 
-        for (String p : uris)
-        {
+        for (String p : uris) {
             URI uri = URI.create(p);
             assertTrue(uri.getPath().equals("/path/to/file"));
         }

@@ -19,7 +19,6 @@ import alluxio.client.file.cache.filter.DefaultCacheFilter;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.shaded.client.com.fasterxml.jackson.databind.ObjectMapper;
 import com.facebook.airlift.log.Logger;
-import org.apache.hadoop.fs.Path;
 
 import java.io.File;
 import java.net.URI;
