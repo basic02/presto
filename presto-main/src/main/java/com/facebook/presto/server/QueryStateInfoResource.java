@@ -73,6 +73,7 @@ public class QueryStateInfoResource
     private final boolean resourceManagerEnabled;
     private final InternalNodeManager internalNodeManager;
     private final Optional<ResourceManagerProxy> proxyHelper;
+    private final long matchingTimeoutMillis;
 
     @Inject
     public QueryStateInfoResource(
@@ -87,6 +88,7 @@ public class QueryStateInfoResource
         this.internalNodeManager = requireNonNull(internalNodeManager, "internalNodeManager is null");
         this.resourceManagerEnabled = requireNonNull(serverConfig, "serverConfig is null").isResourceManagerEnabled();
         this.proxyHelper = requireNonNull(proxyHelper, "proxyHelper is null");
+        this.matchingTimeoutMillis = serverConfig.getMatchingTimeoutMillis();
     }
 
     @GET
@@ -113,7 +115,7 @@ public class QueryStateInfoResource
             ExecutorService executor = Executors.newSingleThreadExecutor();
             List<QueryStateInfo> queryStateInfos = queryInfos.stream()
                     .filter(queryInfo -> includeAllQueries || !queryInfo.getState().isDone())
-                    .filter(queryInfo -> matchesWithTimeout(userPattern, queryInfo.getSession().getUser(), 10000, executor))
+                    .filter(queryInfo -> matchesWithTimeout(userPattern, queryInfo.getSession().getUser(), matchingTimeoutMillis, executor))
                     .map(queryInfo -> getQueryStateInfo(
                             queryInfo,
                             includeAllQueryProgressStats,
