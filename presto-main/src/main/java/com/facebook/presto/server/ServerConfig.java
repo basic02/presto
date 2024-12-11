@@ -43,6 +43,7 @@ public class ServerConfig
     private Duration clusterStatsExpirationDuration = new Duration(0, MILLISECONDS);
     private boolean nestedDataSerializationEnabled = true;
     private Duration clusterResourceGroupStateInfoExpirationDuration = new Duration(0, MILLISECONDS);
+    private long matchingTimeoutMillis = 10000;
 
     public boolean isResourceManager()
     {
@@ -155,6 +156,18 @@ public class ServerConfig
         return this;
     }
 
+    public long getMatchingTimeoutMillis()
+    {
+        return this.matchingTimeoutMillis;
+    }
+
+    @Config("matching-timeout-millis")
+    public ServerConfig setMatchingTimeoutMillis(long millis)
+    {
+        this.matchingTimeoutMillis = millis;
+        return this;
+    }
+
     public Duration getGracePeriod()
     {
         return gracePeriod;
@@ -166,6 +179,7 @@ public class ServerConfig
         this.gracePeriod = gracePeriod;
         return this;
     }
+
 
     public boolean isEnhancedErrorReporting()
     {
