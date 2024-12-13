@@ -1037,6 +1037,7 @@ public abstract class AbstractTestHiveClient
                 hiveClientConfig.getMinPartitionBatchSize(),
                 hiveClientConfig.getMaxPartitionBatchSize(),
                 hiveClientConfig.getSplitLoaderConcurrency(),
+                hiveClientConfig.getMaxSplitsPerSecond(),
                 false,
                 new ConfigBasedCacheQuotaRequirementProvider(cacheConfig),
                 encryptionInformationProvider);

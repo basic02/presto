@@ -584,6 +584,7 @@ public class TestBackgroundHiveSplitLoader
                 1,
                 1,
                 new DataSize(32, MEGABYTE),
+                1,
                 backgroundHiveSplitLoader,
                 EXECUTOR,
                 new CounterStat(),

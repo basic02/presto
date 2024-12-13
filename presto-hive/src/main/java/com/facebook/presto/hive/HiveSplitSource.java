@@ -19,6 +19,7 @@ import com.facebook.presto.hive.InternalHiveSplit.InternalHiveBlock;
 import com.facebook.presto.hive.util.AsyncQueue;
 import com.facebook.presto.hive.util.AsyncQueue.BorrowResult;
 import com.facebook.presto.hive.util.SizeBasedSplitWeightProvider;
+import com.facebook.presto.hive.util.ThrottledAsyncQueue;
 import com.facebook.presto.spi.ConnectorSession;
 import com.facebook.presto.spi.ConnectorSplit;
 import com.facebook.presto.spi.ConnectorSplitSource;
@@ -142,6 +143,16 @@ class HiveSplitSource
         this.splitScanRatio = max(min(splitScanRatio, 1.0), 0.1);
     }
 
+    private static AsyncQueue<InternalHiveSplit> createQueue(int maxSplitsPerSecond, int maxOutstandingSplits, Executor executor)
+    {
+        if (maxSplitsPerSecond > 0) {
+            return new ThrottledAsyncQueue<>(maxSplitsPerSecond, maxOutstandingSplits, executor);
+        }
+        else {
+            return new AsyncQueue<>(maxOutstandingSplits, executor);
+        }
+    }
+
     public static HiveSplitSource allAtOnce(
             ConnectorSession session,
             String databaseName,
@@ -150,6 +161,7 @@ class HiveSplitSource
             int maxInitialSplits,
             int maxOutstandingSplits,
             DataSize maxOutstandingSplitsSize,
+            int maxSplitsPerSecond,
             HiveSplitLoader splitLoader,
             Executor executor,
             CounterStat highMemorySplitSourceCounter,
@@ -162,7 +174,7 @@ class HiveSplitSource
                 cacheQuotaRequirement,
                 new PerBucket()
                 {
-                    private final AsyncQueue<InternalHiveSplit> queue = new AsyncQueue<>(maxOutstandingSplits, executor);
+                    private final AsyncQueue<InternalHiveSplit> queue = createQueue(maxSplitsPerSecond, maxOutstandingSplits, executor);
 
                     @Override
                     public ListenableFuture<?> offer(OptionalInt bucketNumber, InternalHiveSplit connectorSplit)
@@ -213,6 +225,7 @@ class HiveSplitSource
             int maxInitialSplits,
             int estimatedOutstandingSplitsPerBucket,
             DataSize maxOutstandingSplitsSize,
+            int maxSplitsPerSecond,
             HiveSplitLoader splitLoader,
             Executor executor,
             CounterStat highMemorySplitSourceCounter,
@@ -270,7 +283,7 @@ class HiveSplitSource
                         AtomicBoolean isNew = new AtomicBoolean();
                         AsyncQueue<InternalHiveSplit> queue = queues.computeIfAbsent(bucketNumber.getAsInt(), ignored -> {
                             isNew.set(true);
-                            return new AsyncQueue<>(estimatedOutstandingSplitsPerBucket, executor);
+                            return createQueue(maxSplitsPerSecond, estimatedOutstandingSplitsPerBucket, executor);
                         });
                         if (isNew.get() && finished.get()) {
                             // Check `finished` and invoke `queue.finish` after the `queue` is added to the map.
@@ -295,6 +308,7 @@ class HiveSplitSource
             CacheQuotaRequirement cacheQuotaRequirement,
             int maxInitialSplits,
             DataSize maxOutstandingSplitsSize,
+            int maxSplitsPerSecond,
             HiveSplitLoader splitLoader,
             Executor executor,
             CounterStat highMemorySplitSourceCounter,

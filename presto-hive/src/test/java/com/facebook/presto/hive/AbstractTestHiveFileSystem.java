@@ -231,6 +231,7 @@ public abstract class AbstractTestHiveFileSystem
                 config.getMinPartitionBatchSize(),
                 config.getMaxPartitionBatchSize(),
                 config.getSplitLoaderConcurrency(),
+                config.getMaxSplitsPerSecond(),
                 config.getRecursiveDirWalkerEnabled(),
                 new ConfigBasedCacheQuotaRequirementProvider(cacheConfig),
                 new HiveEncryptionInformationProvider(ImmutableSet.of()));

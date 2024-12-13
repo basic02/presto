@@ -30,6 +30,7 @@ import io.airlift.units.MinDataSize;
 import io.airlift.units.MinDuration;
 import org.joda.time.DateTimeZone;
 
+import javax.annotation.Nullable;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
@@ -75,6 +76,7 @@ public class HiveClientConfig
     private int maxPartitionBatchSize = 100;
     private int maxInitialSplits = 200;
     private int splitLoaderConcurrency = 4;
+    private int maxSplitsPerSecond;
     private DataSize maxInitialSplitSize;
     private int domainCompactionThreshold = 100;
     private DataSize writerSortBufferSize = new DataSize(64, MEGABYTE);
@@ -1873,6 +1875,21 @@ public class HiveClientConfig
     public HiveClientConfig setThriftBufferSize(DataSize thriftBufferSize)
     {
         this.thriftBufferSize = thriftBufferSize;
+        return this;
+    }
+
+    @Min(0)
+    @Nullable
+    public Integer getMaxSplitsPerSecond()
+    {
+        return maxSplitsPerSecond;
+    }
+
+    @Config("hive.max-splits-per-second")
+    @ConfigDescription("Throttles the maximum number of splits that can be assigned to tasks per second")
+    public HiveClientConfig setMaxSplitsPerSecond(Integer maxSplitsPerSecond)
+    {
+        this.maxSplitsPerSecond = maxSplitsPerSecond;
         return this;
     }
 

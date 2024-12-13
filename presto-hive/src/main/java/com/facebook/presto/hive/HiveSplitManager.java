@@ -147,6 +147,7 @@ public class HiveSplitManager
     private final int minPartitionBatchSize;
     private final int maxPartitionBatchSize;
     private final int splitLoaderConcurrency;
+    private final int maxSplitsPerSecond;
     private final boolean recursiveDfsWalkerEnabled;
     private final CounterStat highMemorySplitSourceCounter;
     private final CacheQuotaRequirementProvider cacheQuotaRequirementProvider;
@@ -177,6 +178,7 @@ public class HiveSplitManager
                 hiveClientConfig.getMinPartitionBatchSize(),
                 hiveClientConfig.getMaxPartitionBatchSize(),
                 hiveClientConfig.getSplitLoaderConcurrency(),
+                hiveClientConfig.getMaxSplitsPerSecond(),
                 hiveClientConfig.getRecursiveDirWalkerEnabled(),
                 cacheQuotaRequirementProvider,
                 encryptionInformationProvider);
@@ -195,6 +197,7 @@ public class HiveSplitManager
             int minPartitionBatchSize,
             int maxPartitionBatchSize,
             int splitLoaderConcurrency,
+            int maxSplitsPerSecond,
             boolean recursiveDfsWalkerEnabled,
             CacheQuotaRequirementProvider cacheQuotaRequirementProvider,
             HiveEncryptionInformationProvider encryptionInformationProvider)
@@ -212,6 +215,7 @@ public class HiveSplitManager
         this.minPartitionBatchSize = minPartitionBatchSize;
         this.maxPartitionBatchSize = maxPartitionBatchSize;
         this.splitLoaderConcurrency = splitLoaderConcurrency;
+        this.maxSplitsPerSecond = maxSplitsPerSecond;
         this.recursiveDfsWalkerEnabled = recursiveDfsWalkerEnabled;
         this.cacheQuotaRequirementProvider = requireNonNull(cacheQuotaRequirementProvider, "cacheQuotaRequirementProvider is null");
         this.encryptionInformationProvider = requireNonNull(encryptionInformationProvider, "encryptionInformationProvider is null");
@@ -372,6 +376,7 @@ public class HiveSplitManager
                         getHiveMaxInitialSplitSize(session),
                         maxOutstandingSplits,
                         maxOutstandingSplitsSize,
+                        maxSplitsPerSecond,
                         hiveSplitLoader,
                         executor,
                         new CounterStat(),
@@ -386,6 +391,7 @@ public class HiveSplitManager
                         getHiveMaxInitialSplitSize(session),
                         maxOutstandingSplits,
                         maxOutstandingSplitsSize,
+                        maxSplitsPerSecond,
                         hiveSplitLoader,
                         executor,
                         new CounterStat(),
@@ -399,6 +405,7 @@ public class HiveSplitManager
                         cacheQuotaRequirement,
                         getHiveMaxInitialSplitSize(session),
                         maxOutstandingSplitsSize,
+                        maxSplitsPerSecond,
                         hiveSplitLoader,
                         executor,
                         new CounterStat(),
