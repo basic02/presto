@@ -180,7 +180,6 @@ public class ServerConfig
         return this;
     }
 
-
     public boolean isEnhancedErrorReporting()
     {
         return enhancedErrorReporting;
