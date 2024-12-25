@@ -26,6 +26,7 @@ import com.facebook.presto.spi.function.ScalarFunction;
 import com.facebook.presto.spi.function.ScalarOperator;
 import com.facebook.presto.spi.function.SqlNullable;
 import com.facebook.presto.spi.function.SqlType;
+import com.facebook.presto.util.DateTimeUtils;
 import io.airlift.slice.Slice;
 import io.airlift.slice.XxHash64;
 import org.joda.time.chrono.ISOChronology;
@@ -190,7 +191,7 @@ public final class TimestampOperators
     public static Slice castToSlice(SqlFunctionProperties properties, @SqlType(StandardTypes.TIMESTAMP) long value)
     {
         if (properties.isLegacyTimestamp()) {
-            return utf8Slice(printTimestampWithoutTimeZone(properties.getTimeZoneKey(), value));
+            return utf8Slice(DateTimeUtils.printTimestampWithoutTimeZone2(properties.getTimeZoneKey(), value));
         }
         else {
             return utf8Slice(printTimestampWithoutTimeZone(value));

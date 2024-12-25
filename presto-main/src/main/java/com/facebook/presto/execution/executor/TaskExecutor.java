@@ -623,6 +623,7 @@ public class TaskExecutor
                         }
                     }
                     catch (Throwable t) {
+                        TaskExecutor.log.error(t, "+++9 catch: " + split.getInfo());
                         // ignore random errors due to driver thread interruption
                         if (!split.isDestroyed()) {
                             if (t instanceof PrestoException) {

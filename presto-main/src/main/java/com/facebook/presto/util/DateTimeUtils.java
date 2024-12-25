@@ -39,6 +39,8 @@ import org.joda.time.format.PeriodParser;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -78,6 +80,7 @@ public final class DateTimeUtils
     private static final DateTimeFormatter TIMESTAMP_WITHOUT_TIME_ZONE_FORMATTER;
     private static final DateTimeFormatter TIMESTAMP_WITH_TIME_ZONE_FORMATTER;
     private static final DateTimeFormatter TIMESTAMP_WITH_OR_WITHOUT_TIME_ZONE_FORMATTER;
+    private static final java.time.format.DateTimeFormatter JAVA_FORMATTER = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
 
     static {
         DateTimeParser[] timestampWithoutTimeZoneParser = {
@@ -255,6 +258,11 @@ public final class DateTimeUtils
     public static String printTimestampWithoutTimeZone(TimeZoneKey timeZoneKey, long timestamp)
     {
         return LEGACY_TIMESTAMP_WITHOUT_TIME_ZONE_FORMATTER.withChronology(getChronology(timeZoneKey)).print(timestamp);
+    }
+
+    public static String printTimestampWithoutTimeZone2(TimeZoneKey timeZoneKey, long timestamp)
+    {
+        return Instant.ofEpochMilli(timestamp).atZone(ZoneId.of(timeZoneKey.getId())).format(JAVA_FORMATTER);
     }
 
     public static boolean timestampHasTimeZone(String value)

@@ -13,6 +13,7 @@
  */
 package com.facebook.presto.memory;
 
+import com.facebook.airlift.log.Logger;
 import com.facebook.presto.execution.TaskId;
 import com.facebook.presto.spi.QueryId;
 import com.facebook.presto.spi.memory.MemoryAllocation;
@@ -45,6 +46,7 @@ import static java.util.function.Function.identity;
 
 public class MemoryPool
 {
+    private static final Logger log = Logger.get(MemoryPool.class);
     private static final String MOVE_QUERY_TAG = "MOVE_QUERY_OPERATION";
 
     private final MemoryPoolId id;
@@ -134,6 +136,7 @@ public class MemoryPool
             }
             reservedBytes += bytes;
             if (getFreeBytes() <= 0) {
+                log.warn(String.format("blockedOnMemoryPool:%s,%s,%s", queryId, allocationTag, bytes));
                 if (future == null) {
                     future = NonCancellableMemoryFuture.create();
                 }
