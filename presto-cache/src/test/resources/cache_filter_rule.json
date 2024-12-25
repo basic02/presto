@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {
+      "pathPrefix": "/user/hive/warehouse/test.db/test",
+      "partitioned": true
+    }
+  ]
+}

@@ -55,7 +55,7 @@ public class AlluxioCachingFileSystem
     public synchronized void initialize(URI uri, Configuration configuration)
             throws IOException
     {
-        this.localCacheFileSystem = new LocalCacheFileSystem(dataTier, uriStatus -> {
+        this.localCacheFileSystem = new ExtendedLocalCacheFileSystem(dataTier, uriStatus -> {
             // CacheContext is the mechanism to pass the hiveFileContext to the source filesystem
             // hiveFileContext is critical to use to open file.
             CacheContext cacheContext = uriStatus.getCacheContext();
@@ -86,7 +86,7 @@ public class AlluxioCachingFileSystem
                     .setPath(path.toString())
                     .setFolder(false)
                     .setLength(hiveFileContext.getFileSize().getAsLong());
-            String cacheIdentifier = md5().hashString(path.toString(), UTF_8).toString();
+            String cacheIdentifier = md5().hashString(path.toString()+String.valueOf(hiveFileContext.getModificationTime()), UTF_8).toString();
             // CacheContext is the mechanism to pass the cache related context to the source filesystem
             CacheContext cacheContext = PrestoCacheContext.build(cacheIdentifier, hiveFileContext, cacheQuotaEnabled);
             URIStatus uriStatus = new URIStatus(info, cacheContext);
