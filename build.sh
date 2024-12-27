@@ -1,0 +1,1 @@
+scp presto-cache/target/presto-cache-0.275.jar root@ccycloud-1.jiayin.root.comops.site:/opt/presto/plugin/hive-hadoop2/presto-cache-0.275.jar

@@ -19,30 +19,63 @@ import alluxio.client.file.cache.filter.DefaultCacheFilter;
 import alluxio.conf.AlluxioConfiguration;
 import alluxio.shaded.client.com.fasterxml.jackson.databind.ObjectMapper;
 import com.facebook.airlift.log.Logger;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import java.io.File;
 import java.net.URI;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 public class AlluxioCacheFilter
         extends DefaultCacheFilter
 {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final Logger log = Logger.get(AlluxioCacheFilter.class);
+    private static final String CACHE_NAME = "FILTER_CACHE";
+    private static final Cache<String, FilterRuleSet> filter_cache = CacheBuilder.newBuilder()
+            .expireAfterWrite(1, TimeUnit.MINUTES) // TTL of 10 minutes
+            .build();
 
-    private FilterRuleSet filterRuleSet;
+    private String cacheConfigFile;
 
-    public AlluxioCacheFilter(AlluxioConfiguration conf, String cacheConfigFile)
+    private static FilterRuleSet loadFromFile(String cacheConfigFile)
     {
-        super(conf, cacheConfigFile);
+        FilterRuleSet filterRuleSet;
         try {
             filterRuleSet = mapper.readValue(new File(cacheConfigFile), FilterRuleSet.class);
-            log.info(String.format("cache filter initialized with %d rules", filterRuleSet.getRules().size()));
+            log.info(String.format("cache filter config loaded with %d rules", filterRuleSet.getRules().size()));
         }
         catch (Exception ex) {
             filterRuleSet = null;
             log.warn("failed to load rule, cache will be disabled", ex);
         }
-        log.info("cache filter initialized");
+        return filterRuleSet;
+    }
+
+    public AlluxioCacheFilter(AlluxioConfiguration conf, String cacheConfigFile)
+    {
+        super(conf, cacheConfigFile);
+        this.cacheConfigFile = cacheConfigFile;
+    }
+
+    public FilterRuleSet getRules()
+    {
+        FilterRuleSet filterRuleSet;
+        try {
+            filterRuleSet = filter_cache.get(CACHE_NAME, new Callable<FilterRuleSet>() {
+                @Override
+                public FilterRuleSet call() throws Exception
+                {
+                    return loadFromFile(AlluxioCacheFilter.this.cacheConfigFile);
+                }
+            });
+        }
+        catch (Exception ex) {
+            log.warn("failed to get rule, cache will be disabled", ex);
+            filterRuleSet = null;
+        }
+        return filterRuleSet;
     }
 
     @Override
@@ -52,14 +85,15 @@ public class AlluxioCacheFilter
         String path = uri.getPath();
         boolean result = false;
         // check if the given path
+        FilterRuleSet filterRuleSet = getRules();
         if ((filterRuleSet != null) && (filterRuleSet.getRules() != null) && (!filterRuleSet.getRules().isEmpty())) {
             result = filterRuleSet.getRules().stream().anyMatch(rule -> path.startsWith(rule.getPathPrefix()));
         }
         if (result) {
-            log.info(String.format("%s is cached", path));
+            log.info(String.format("%s will be granted to use cache", path));
         }
         else {
-            log.warn(String.format("%s is read by-pass", path));
+            log.warn(String.format("%s will BY-PASS cache", path));
         }
         return result;
     }
