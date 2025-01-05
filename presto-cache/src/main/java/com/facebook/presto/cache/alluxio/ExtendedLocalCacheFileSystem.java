@@ -34,7 +34,6 @@ public class ExtendedLocalCacheFileSystem
             fs.add("file");
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
